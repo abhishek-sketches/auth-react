@@ -1,35 +1,34 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import TodoCard from "./components/TodoCard";
-import TodoForm from "./components/TodoForm";
-const Dashboard = ({ setToken }) => {
-  const navigate = useNavigate();
-  const [todoList, setTodoList] = useState([]);
-  const logout = () => {
-    localStorage.setItem("token", JSON.stringify(false));
-    setToken(false);
-    navigate("/");
-  };
-  console.log("><><><", todoList);
+import TodoCard from "./components/TodoCard.jsx";
+import TodoForm from "./components/TodoForm.jsx";
+
+const Dashboard = ({ onLogout }) => {
+  const [todos, setTodos] = useState([]);
+
+  const addTodo = (task) =>
+    setTodos((list) => [...list, { id: crypto.randomUUID(), task }]);
+  const deleteTodo = (id) => setTodos((list) => list.filter((t) => t.id !== id));
+
   return (
-    <div className="h-screen">
-      <div className=" flex justify-between mx-2 my-2  text-red-800">
-        <span className="text-3xl ">Dashboard</span>
-        <span onClick={logout} className="cursor-pointer text-red-800">
+    <main className="dashboard">
+      <header className="dashboard-header">
+        <h1>Dashboard</h1>
+        <button type="button" className="btn btn-ghost" onClick={onLogout}>
           Logout
-        </span>
-      </div>
-      <TodoForm todoList={todoList} setTodoList={setTodoList} />
-      {todoList.map((todo, index) => (
-        <TodoCard
-          key={index}
-          todo={todo}
-          index={index}
-          todoList={todoList}
-          setTodoList={setTodoList}
-        />
-      ))}
-    </div>
+        </button>
+      </header>
+      <TodoForm onAdd={addTodo} />
+      {todos.length === 0 ? (
+        <p className="empty">No tasks yet. Add your first one above.</p>
+      ) : (
+        <ul className="todo-list" aria-label="Tasks">
+          {todos.map((todo) => (
+            <TodoCard key={todo.id} todo={todo} onDelete={deleteTodo} />
+          ))}
+        </ul>
+      )}
+    </main>
   );
 };
+
 export default Dashboard;

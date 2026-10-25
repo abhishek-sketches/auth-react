@@ -1,38 +1,35 @@
-import Auth from "./components/Auth/Auth";
-import { useState } from "react";
-import Dashboard from "./components/Dashboard";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import Auth from "./components/Auth/Auth.jsx";
+import Dashboard from "./components/Dashboard/index.jsx";
+import useAuth from "./hooks/useAuth.js";
+
 const App = () => {
-  const [token, setToken] = useState(JSON.parse(localStorage.getItem("token")));
+  const { isAuthed, login, register, logout } = useAuth();
 
   return (
-    <div>
-      <Router>
-        <Routes>
-          {!token ? (
-            <Route
-              exact
-              path="/"
-              element={<Auth setToken={setToken} />}
-            ></Route>
-          ) : (
-            <Route
-              exact
-              path="/dashboard"
-              element={<Dashboard setToken={setToken} />}
-            ></Route>
-          )}
-        </Routes>
-      </Router>
-      <Toaster
-        position="bottom-center"
-        reverseOrder={false}
-        toastOptions={{
-          className: "toast-container",
-        }}
-      />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthed ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Auth login={login} register={register} />
+            )
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            isAuthed ? <Dashboard onLogout={logout} /> : <Navigate to="/" replace />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Toaster position="bottom-center" />
+    </BrowserRouter>
   );
 };
 

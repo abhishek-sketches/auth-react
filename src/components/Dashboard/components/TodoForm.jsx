@@ -1,39 +1,37 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-const TodoForm = ({ todoList, setTodoList }) => {
-  const [taskvalue, setTaskValue] = useState({ task: "" });
 
-  const handleChange = (e) => {
-    setTaskValue({ ...taskvalue, [e.target.name]: e.target.value });
-  };
-  const handleSumbit = (e) => {
+const TodoForm = ({ onAdd }) => {
+  const [task, setTask] = useState("");
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (taskvalue.task === "") {
-      toast.error("Input field is empty !");
-    } else {
-      setTodoList([...todoList, taskvalue]);
-      setTaskValue({ task: "" });
+    const trimmed = task.trim();
+    if (!trimmed) {
+      toast.error("Input field is empty!");
+      return;
     }
+    onAdd(trimmed);
+    setTask("");
   };
+
   return (
-    <div className="flex flex-row justify-center mt-5">
-      <form onSubmit={handleSumbit}>
-        <input
-          onChange={handleChange}
-          type="text"
-          name="task"
-          value={taskvalue?.task || ""}
-          placeholder="TodoList"
-          className="form-control text-lg font-normal border border-solid border-gray-300 shadow-lg rounded  px-2 py-2"
-        />
-        <button
-          type="submit"
-          className="ml-2 border-2 border-green-500 p-2 text-green-500 hover:text-white hover:bg-green-500 rounded-lg "
-        >
-          <span>Add</span>
-        </button>
-      </form>
-    </div>
+    <form className="todo-form" onSubmit={handleSubmit}>
+      <label htmlFor="task" className="sr-only">
+        New task
+      </label>
+      <input
+        id="task"
+        className="input"
+        type="text"
+        value={task}
+        onChange={(e) => setTask(e.target.value)}
+        placeholder="Add a task"
+      />
+      <button type="submit" className="btn">
+        Add
+      </button>
+    </form>
   );
 };
 
